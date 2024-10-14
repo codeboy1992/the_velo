@@ -45,11 +45,13 @@ def inserer_donnees(data):
 
     for station in data:
         cursor.execute('''
-        INSERT INTO stations (id, name, available_bikes, 
-        ²)
+        INSERT INTO stations (id, name, available_bikes, available_bike_stands)
         VALUES (?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            name=excluded.name,
+            available_bikes=excluded.available_bikes,
+            available_bike_stands=excluded.available_bike_stands
         ''', (station['number'], station['name'], station['available_bikes'], station['available_bike_stands']))
-
     conn.commit()
     conn.close()
 
