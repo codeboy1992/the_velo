@@ -42,7 +42,7 @@ def creer_table():
 def inserer_donnees(data):
     conn = sqlite3.connect('stations_velos.db')
     cursor = conn.cursor()
-
+    # commentaire
     for station in data:
         cursor.execute('''
         INSERT INTO stations (id, name, available_bikes, available_bike_stands)
