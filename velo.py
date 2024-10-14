@@ -1,6 +1,6 @@
 import sqlite3
 import requests
-
+import numpy as np
 
 # Fonction pour appeler l'API JCDecaux
 def appeler_api_jcdecaux(api_key, contract_name):
@@ -27,10 +27,19 @@ def creer_table():
     # Création de la table des stations si elle n'existe pas déjà
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS stations (
-        id INTEGER PRIMARY KEY,
+        number INTEGER PRIMARY KEY,
+        contract_name TEXT,
         name TEXT,
+        address TEXT,
+        lat REAL,
+        lng REAL,
+        banking BOOLEAN,
+        bonus BOOLEAN,
+        bike_stands INTEGER,
+        available_bike_stands INTEGER,
         available_bikes INTEGER,
-        available_bike_stands INTEGER
+        status TEXT,
+        last_update INTEGER
     )
     ''')
 
@@ -44,14 +53,39 @@ def inserer_donnees(data):
     cursor = conn.cursor()
 
     for station in data:
+        # Insertion ou mise à jour des données
         cursor.execute('''
-        INSERT INTO stations (id, name, available_bikes, available_bike_stands)
-        VALUES (?, ?, ?, ?)
-        ON CONFLICT(id) DO UPDATE SET
+        INSERT INTO stations (number, contract_name, name, address, lat, lng, banking, bonus, bike_stands, available_bike_stands, available_bikes, status, last_update)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(number) DO UPDATE SET
+            contract_name=excluded.contract_name,
             name=excluded.name,
+            address=excluded.address,
+            lat=excluded.lat,
+            lng=excluded.lng,
+            banking=excluded.banking,
+            bonus=excluded.bonus,
+            bike_stands=excluded.bike_stands,
+            available_bike_stands=excluded.available_bike_stands,
             available_bikes=excluded.available_bikes,
-            available_bike_stands=excluded.available_bike_stands
-        ''', (station['number'], station['name'], station['available_bikes'], station['available_bike_stands']))
+            status=excluded.status,
+            last_update=excluded.last_update
+        ''', (
+            station['number'],
+            station['contract_name'],
+            station['name'],
+            station['address'],
+            station['position']['lat'],
+            station['position']['lng'],
+            station['banking'],
+            station['bonus'],
+            station['bike_stands'],
+            station['available_bike_stands'],
+            station['available_bikes'],
+            station['status'],
+            station['last_update']
+        ))
+
     conn.commit()
     conn.close()
 
