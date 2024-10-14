@@ -55,7 +55,7 @@ def inserer_donnees(data):
     conn.commit()
     conn.close()
 
-
+# Coucou Patoche !
 # API Key et contrat
 api_key = "7967e55f58492463189c6b2d17ccb21343a559b3"
 contract_name = "nancy"
