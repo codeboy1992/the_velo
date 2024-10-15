@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte des stations de vélos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+    // Fonction pour rafraîchir les données et les trier par pourcentage croissant de vélos disponibles
+    function refreshData() {
+        fetch('/reset_map')  // Appel à la route Flask qui rafraîchit les données
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Forcer le rechargement de la carte en ajoutant un paramètre unique à l'URL
+                    document.getElementById('map-frame').src = "/static/map.html?t=" + new Date().getTime();
+
+                    // Vider la liste actuelle des stations
+                    let stationsList = document.getElementById('stations-list');
+                    stationsList.innerHTML = '';
+
+                    // Trier les stations par pourcentage croissant de vélos disponibles
+                    let sortedStations = data.stations.sort((a, b) => {
+                        const percentageA = (a.available_bikes / a.bike_stands) * 100;
+                        const percentageB = (b.available_bikes / b.bike_stands) * 100;
+                        return percentageA - percentageB;
+                    });
+
+                    // Mettre à jour la liste des stations à droite
+                    sortedStations.forEach(station => {
+                        const percentageFilled = (station.available_bikes / station.bike_stands) * 100;
+                        let colorClass = '';
+
+                        if (percentageFilled < 25) {
+                            colorClass = 'red';
+                        } else if (percentageFilled < 75) {
+                            colorClass = 'orange';
+                        } else {
+                            colorClass = 'green';
+                        }
+
+                        // Créer un nouvel élément de liste
+                        const listItem = document.createElement('li');
+                        listItem.className = colorClass;
+                        listItem.innerHTML = `${station.name} - Vélos disponibles : ${station.available_bikes}/${station.bike_stands}`;
+                        listItem.onclick = () => focusOnStation(station.position.lat, station.position.lng, station.available_bikes);
+
+                        stationsList.appendChild(listItem);
+                    });
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+    }
+
+    // Fonction pour rechercher des stations
+    function searchStations() {
+        const searchTerm = document.getElementById('search-input').value.trim();
+
+        fetch(`/search?term=${searchTerm}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let stationsList = document.getElementById('stations-list');
+                    stationsList.innerHTML = '';
+
+                    let sortedStations = data.stations.sort((a, b) => {
+                        const percentageA = (a.available_bikes / a.bike_stands) * 100;
+                        const percentageB = (b.available_bikes / b.bike_stands) * 100;
+                        return percentageA - percentageB;
+                    });
+
+                    sortedStations.forEach(station => {
+                        const percentageFilled = (station.available_bikes / station.bike_stands) * 100;
+                        let colorClass = '';
+
+                        if (percentageFilled < 25) {
+                            colorClass = 'red';
+                        } else if (percentageFilled < 75) {
+                            colorClass = 'orange';
+                        } else {
+                            colorClass = 'green';
+                        }
+
+                        const listItem = document.createElement('li');
+                        listItem.className = colorClass;
+                        listItem.innerHTML = `${station.name} - Vélos disponibles : ${station.available_bikes}/${station.bike_stands}`;
+                        listItem.onclick = () => focusOnStation(station.position.lat, station.position.lng, station.available_bikes);
+
+                        stationsList.appendChild(listItem);
+                    });
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+    }
+
+    // Rafraîchir les données toutes les 2 minutes
+    setInterval(refreshData, 120000);  // 120000 ms = 2 minutes
+
+    // Appel initial pour charger les données dès l'ouverture
+    window.onload = refreshData;
+
+    function focusOnStation(lat, lng, available_bikes) {
+        // Appel AJAX pour centrer la carte sur la station cliquée
+        fetch(`/station?lat=${lat}&lng=${lng}&available_bikes=${available_bikes}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('map-frame').src = "/static/map.html";
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+    }
+
+    function resetMap() {
+        // Appel AJAX pour réinitialiser la carte avec toutes les stations
+        fetch(`/reset_map`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('map-frame').src = "/static/map.html";
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+    }
+</script>
+
+
+</head>
+<body>
+    <div class="container">
+        <!-- Section Carte -->
+        <div id="map-container">
+            <iframe id="map-frame" src="{{ url_for('static', filename='map.html') }}" width="100%" height="100%" frameborder="0"></iframe>
+        </div>
+
+        <!-- Section Barre de recherche -->
+        <div id="sidebar">
+            <h2>Recherche de stations</h2>
+            <form method="POST">
+                <input type="text" name="search" placeholder="Rechercher une station" value="{{ request.form.search or '' }}">
+                <button type="submit">Rechercher</button>
+            </form>
+
+            <button class="reset_btn" onclick="resetMap()">Voir toutes les stations</button>
+
+            <h3>Résultats</h3>
+            <ul id="stations-list">
+                <!-- Les stations seront injectées ici via JavaScript -->
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
