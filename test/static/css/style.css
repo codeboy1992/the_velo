@@ -1,0 +1,8 @@
+#stations-menu {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+#stations-list li:hover {
+    background-color: #f0f0f0;
+}
