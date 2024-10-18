@@ -10,7 +10,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 var currentRouteControl = null;
 var currentSurchargeLat = null;
 var currentSurchargeLon = null;
-var stationMarkers = [];  // Stocke tous les marqueurs des stations
+var stationMarkers = {};  // Stocke les marqueurs des stations par ID
 
 // Charger les stations de l'API et mettre à jour la date de mise à jour
 function loadStationsAndUpdateTime() {
@@ -18,8 +18,8 @@ function loadStationsAndUpdateTime() {
         .then(response => response.json())
         .then(data => {
             // Supprimer tous les anciens marqueurs
-            stationMarkers.forEach(marker => map.removeLayer(marker));
-            stationMarkers = [];  // Réinitialiser la liste des marqueurs
+            Object.values(stationMarkers).forEach(marker => map.removeLayer(marker));
+            stationMarkers = {};  // Réinitialiser la liste des marqueurs
 
             // Vider la liste des stations dans le menu
             document.getElementById('stations-list').innerHTML = '';
@@ -33,8 +33,22 @@ function loadStationsAndUpdateTime() {
             const currentDate = new Date();
             const formattedDate = currentDate.toLocaleString();
             document.getElementById('last-updated').textContent = `Dernière mise à jour : ${formattedDate}`;
+
+            // Vérifier les mises à jour des stations et ajouter un clignotement si un vélo est retiré ou ajouté
+            data.surcharges.concat(data.sous_alimentees, data.normales).forEach(station => {
+                if (stationMarkers[station.id]) {
+                    var previousAvailableBikes = stationMarkers[station.id].available_bikes;
+                    if (previousAvailableBikes !== station.available_bikes) {
+                        const bikeChange = station.available_bikes - previousAvailableBikes;
+                        flashStationMarker(stationMarkers[station.id]);
+                        displayStationUpdateMessage(station.name, station.available_bikes, previousAvailableBikes);
+                        displayBikeChangeAnimation(stationMarkers[station.id], bikeChange);  // Appeler l'animation
+                    }
+                }
+            });
         });
 }
+
 
 // Fonction pour ajouter des stations sur la carte
 function addStationsToMap(stations, color, type) {
@@ -46,8 +60,9 @@ function addStationsToMap(stations, color, type) {
             })
         }).addTo(map);
 
-        // Ajouter chaque marqueur dans la liste des marqueurs
-        stationMarkers.push(marker);
+        // Ajouter chaque marqueur dans la liste des marqueurs par ID
+        stationMarkers[station.id] = marker;
+        stationMarkers[station.id].available_bikes = station.available_bikes;
 
         marker.bindPopup(`<b>${station.name}</b><br>${type}<br>Vélos disponibles : ${station.available_bikes}<br>Places disponibles : ${station.available_bike_stands}`);
 
@@ -84,9 +99,59 @@ function addStationsToMap(stations, color, type) {
     });
 }
 
+// Fonction pour faire clignoter un marqueur sur la carte
+function flashStationMarker(marker) {
+    let originalIcon = marker.options.icon;
+    let flashIcon = L.icon({
+        iconUrl: 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
+        iconSize: [32, 32]
+    });
+
+    let flashCount = 0;
+    let interval = setInterval(() => {
+        marker.setIcon(flashCount % 2 === 0 ? flashIcon : originalIcon);
+        flashCount++;
+        if (flashCount > 5) {
+            clearInterval(interval);
+            marker.setIcon(originalIcon);
+        }
+    }, 500);
+}
+
+// Fonction pour afficher un message lorsqu'un vélo est retiré ou ajouté
+function displayStationUpdateMessage(stationName, newCount, previousCount) {
+    let message = `La station "${stationName}" a été mise à jour : ${Math.abs(newCount - previousCount)} vélo(s) ${newCount > previousCount ? 'ajouté(s)' : 'retiré(s)'}.`;
+    alert(message);
+}
+
+// Fonction pour afficher une animation lorsqu'un vélo est ajouté ou retiré
+function displayBikeChangeAnimation(marker, bikeChange) {
+    const latLng = marker.getLatLng();
+    const offsetLatLng = L.latLng(latLng.lat + 0.0003, latLng.lng);  // Position légèrement au-dessus du marqueur
+    const changeText = bikeChange > 0 ? `+${bikeChange}` : `${bikeChange}`;
+    const color = bikeChange > 0 ? 'green' : 'red';
+
+    // Créer un divIcon pour l'animation du changement
+    const changeIcon = L.divIcon({
+        className: 'bike-change-label',
+        html: `<div style="color: ${color}; font-weight: bold; font-size: 16px; background-color: white; padding: 5px; border-radius: 5px; width:10px; height:10px;">${changeText}</div>`
+    });
+
+    // Ajouter le label temporaire sur la carte
+    const changeMarker = L.marker(offsetLatLng, { icon: changeIcon }).addTo(map);
+
+    // Supprimer le label après quelques secondes
+    setTimeout(() => {
+        if (map.hasLayer(changeMarker)) {
+            map.removeLayer(changeMarker);
+        }
+    }, 3000);  // Durée prolongée à 3 secondes
+}
+
+
 // Fonction pour trouver l'itinéraire vers la station sous-alimentée la plus proche
 function updateRoute() {
-    let mode = document.querySelector('input[name="mode"]:checked').value;
+    let mode = document.querySelector('input[name="mode"]:checked')?.value;
     if (currentSurchargeLat && currentSurchargeLon) {
         fetch('/api/stations')
             .then(response => response.json())
