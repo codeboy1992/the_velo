@@ -27,11 +27,11 @@ Ce projet propose une carte dynamique affichant des informations en temps réel 
 
 1. Cloner le dépôt :
     ```bash
-    git clone https://github.com/ton-repo/carte-stations-velo.git
+    git clone https://github.com:codeboy1992/the_velo.git
     ```
 2. Aller dans le répertoire du projet :
     ```bash
-    cd carte-stations-velo
+    cd the_velo
     ```
 3. Installer les dépendances Python nécessaires :
     ```bash
@@ -56,7 +56,3 @@ Ce projet propose une carte dynamique affichant des informations en temps réel 
 - **Récupération des données** : Le backend (Flask) récupère périodiquement les données actuelles des stations de vélos.
 - **Rendu de la carte** : La carte est rendue avec Leaflet.js, avec des marqueurs indiquant la localisation de chaque station.
 - **Tri des stations** : Les stations sont triées en fonction du pourcentage de vélos disponibles et sont codées en couleur.
-
-## Licence
-
-Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
