@@ -89,9 +89,4 @@ Ce projet est une application web interactive qui permet de visualiser en temps 
 - **Yohan MATEUS**
 - **Romuald CROCHAT**
 - **Sébastien GERARD**
-## Contributeurs
 
-- **Patrick HEM**
-- **Yohan MATEUS**
-- **Romuald CROCHAT**
-- **Sébastien GERARD**
