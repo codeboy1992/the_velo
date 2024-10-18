@@ -27,7 +27,7 @@ Ce projet propose une carte dynamique affichant des informations en temps réel 
 
 1. Cloner le dépôt :
     ```bash
-    git clone https://github.com:codeboy1992/the_velo.git
+    git clone https://github.com/codeboy1992/the_velo.git
     ```
 2. Aller dans le répertoire du projet :
     ```bash
@@ -47,6 +47,9 @@ Ce projet propose une carte dynamique affichant des informations en temps réel 
 ## Version Alternative
 
 Une version alternative de ce projet est disponible sur la branche `seb`. Cette version contient des fonctionnalités supplémentaires ou des approches différentes. Pour accéder à cette version, il suffit de basculer sur la branche `seb` avec la commande suivante :
+```bash
+git checkout seb
+```
 
 ## Contributeurs
 
@@ -54,5 +57,3 @@ Une version alternative de ce projet est disponible sur la branche `seb`. Cette 
 - **Yohan MATEUS**
 - **Romuald CROCHAT**
 - **Sébastien GERARD**
-```bash
-git checkout seb
