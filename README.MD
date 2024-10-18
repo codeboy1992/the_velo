@@ -48,5 +48,11 @@ Ce projet propose une carte dynamique affichant des informations en temps réel 
 
 Une version alternative de ce projet est disponible sur la branche `seb`. Cette version contient des fonctionnalités supplémentaires ou des approches différentes. Pour accéder à cette version, il suffit de basculer sur la branche `seb` avec la commande suivante :
 
+## Contributeurs
+
+- **Patrick HEM**
+- **Yohan MATEUS**
+- **Romuald CROCHAT**
+- **Sébastien GERARD**
 ```bash
 git checkout seb
