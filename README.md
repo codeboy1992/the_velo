@@ -83,7 +83,12 @@ Ce projet est une application web interactive qui permet de visualiser en temps 
 - Ajouter des statistiques sur les tendances des stations (heures de forte affluence, etc.).
 - Intégrer des suggestions pour l'utilisateur afin de rééquilibrer les vélos entre les stations.
 
+## Contributeurs
 
+- **Patrick HEM**
+- **Yohan MATEUS**
+- **Romuald CROCHAT**
+- **Sébastien GERARD**
 ## Contributeurs
 
 - **Patrick HEM**
