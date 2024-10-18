@@ -44,15 +44,9 @@ Ce projet propose une carte dynamique affichant des informations en temps réel 
 
 5. Ouvrir ton navigateur et aller sur `http://localhost:5000` pour voir la carte.
 
-## Fichiers
+## Version Alternative
 
-- `index.html` : La page principale affichant la carte et la barre latérale pour la recherche et le tri des stations de vélos.
-- `map.html` : Contient la logique de rendu de la carte avec Leaflet.js.
-- `styles.css` : Styles pour la page, y compris le codage couleur des stations en fonction de la disponibilité des vélos.
-- `velo.py` : Script backend qui gère la récupération et la mise à jour des données des stations de vélos (assure-toi que ce script est connecté à ta source de données pour les mises à jour des stations).
+Une version alternative de ce projet est disponible sur la branche `seb`. Cette version contient des fonctionnalités supplémentaires ou des approches différentes. Pour accéder à cette version, il suffit de basculer sur la branche `seb` avec la commande suivante :
 
-## Comment ça marche
-
-- **Récupération des données** : Le backend (Flask) récupère périodiquement les données actuelles des stations de vélos.
-- **Rendu de la carte** : La carte est rendue avec Leaflet.js, avec des marqueurs indiquant la localisation de chaque station.
-- **Tri des stations** : Les stations sont triées en fonction du pourcentage de vélos disponibles et sont codées en couleur.
+```bash
+git checkout seb
